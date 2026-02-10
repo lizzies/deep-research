@@ -70,18 +70,22 @@ export async function POST(req: NextRequest) {
                 data.status
               }`
             );
-            if (data.step === "final-report" && data.status === "end") {
-              controller.close();
-            }
           } else if (event === "error") {
             console.error(data);
-            controller.close();
           }
           controller.enqueue(
             encoder.encode(
-              `event: ${event}\ndata: ${JSON.stringify(data)})}\n\n`
+              `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
             )
           );
+          if (
+            (event === "progress" &&
+              data.step === "final-report" &&
+              data.status === "end") ||
+            event === "error"
+          ) {
+            controller.close();
+          }
         },
       });
 
